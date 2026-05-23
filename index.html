@@ -313,7 +313,12 @@ function getAnswerText(ua, q) {
     const parts=q.answer.split('|');
     return parts.map((v,i)=>{const num=String.fromCharCode(0x2460+i);return`${num}:${(ua||{})[num]||'空'}`}).join(', ');
   }
-  if(q.type==='judge') return ua||'未作答';
+  if(q.type==='judge') return ua==='对'?'正确':ua==='错'?'错误':ua||'未作答';
+  if(q.type==='single'){
+    if(!ua) return '未作答';
+    const opt = q.options[ua]||ua;
+    return `${ua}: ${opt}`;
+  }
   return ua||'未作答';
 }
 
@@ -323,6 +328,11 @@ function getCorrectText(q) {
     return Object.entries(am).map(([k,v])=>`${k}→${v}`).join(', ');
   }
   if(q.type==='fill') return q.answer.replace(/\|/g,' | ');
+  if(q.type==='judge') return q.answer==='对'?'正确':q.answer==='错'?'错误':q.answer;
+  if(q.type==='single'){
+    const opt = q.options[q.answer]||q.answer;
+    return `${q.answer}: ${opt}`;
+  }
   return q.answer;
 }
 
