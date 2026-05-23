@@ -240,6 +240,10 @@
         }
         
         function nextQuestion() {
+            if (!userAnswers[currentIndex]) {
+                alert('请先选择一个答案再继续下一题');
+                return;
+            }
             if (currentIndex < 19) { currentIndex++; showQuestion(); }
         }
         
