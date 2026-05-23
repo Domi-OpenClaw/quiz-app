@@ -248,7 +248,7 @@ function showQuestion(){
   document.getElementById('submitBtn').style.display=last?'inline-block':'none';
 }
 
-function parseMA(a){const m={};if(!a)return m;a.split(',').forEach(p=>{const[s,t]=p.split('——');if(s&&t)m[s.trim()]=t.trim();});return m;}
+function parseMA(a){const m={};if(!a)return m;a.split(',').forEach(p=>{let[s,t]=p.split('——');if(!t)[s,t]=p.split('→');if(s&&t)m[s.trim()]=t.trim();});return m;}
 function shuf(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
 
 function selSingle(val){
