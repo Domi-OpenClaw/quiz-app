@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>信息学业水平测试 - 练习版</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: "PingFang SC", "Microsoft YaHei", sans-serif; background: #f0f2f5; min-height: 100vh; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        
+        /* 首页 */
+        .start-screen { text-align: center; padding-top: 80px; }
+        .start-screen h1 { font-size: 2.2em; color: #1a1a1a; margin-bottom: 20px; }
+        .start-screen .subtitle { font-size: 1.1em; color: #666; margin-bottom: 40px; }
+        .start-screen .info { background: #fff; border-radius: 12px; padding: 30px; margin-bottom: 30px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+        .start-screen .info p { font-size: 1.1em; color: #333; margin: 10px 0; }
+        .start-screen .info strong { color: #ff6b6b; }
+        
+        .btn { display: inline-block; padding: 16px 48px; font-size: 1.2em; color: #fff; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; border-radius: 50px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5); }
+        .btn:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none; }
+        
+        /* 题目区域 */
+        .quiz-screen { display: none; }
+        .progress-bar { background: #e4e6eb; border-radius: 10px; height: 8px; margin-bottom: 20px; overflow: hidden; }
+        .progress-fill { background: linear-gradient(90deg, #667eea, #764ba2); height: 100%; transition: width 0.3s ease; border-radius: 10px; }
+        .question-counter { text-align: center; color: #666; font-size: 0.95em; margin-bottom: 15px; }
+        
+        .question-image { width: 100%; max-width: 700px; display: block; margin: 0 auto 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        
+        .options { display: flex; flex-direction: column; gap: 12px; max-width: 700px; margin: 0 auto; }
+        .option-btn { padding: 16px 24px; font-size: 1.1em; text-align: left; border: 2px solid #e4e6eb; border-radius: 12px; background: #fff; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 12px; }
+        .option-btn:hover { border-color: #667eea; background: #f8f9ff; }
+        .option-btn.selected { border-color: #667eea; background: #667eea; color: #fff; }
+        .option-btn .letter { width: 32px; height: 32px; border-radius: 50%; background: #f0f2f5; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0; }
+        .option-btn.selected .letter { background: rgba(255,255,255,0.3); }
+        
+        .nav-buttons { display: flex; justify-content: center; gap: 15px; margin-top: 30px; }
+        .nav-btn { padding: 12px 30px; font-size: 1em; border: none; border-radius: 25px; cursor: pointer; transition: all 0.2s; }
+        .nav-btn.prev { background: #e4e6eb; color: #333; }
+        .nav-btn.next { background: #667eea; color: #fff; }
+        .nav-btn.submit { background: #ff6b6b; color: #fff; }
+        .nav-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        /* 结果页 */
+        .result-screen { display: none; text-align: center; padding-top: 60px; }
+        .result-card { background: #fff; border-radius: 16px; padding: 40px; max-width: 500px; margin: 0 auto; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        .score-circle { width: 160px; height: 160px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 30px; color: #fff; }
+        .score-circle .score { font-size: 3em; font-weight: bold; }
+        .score-circle .total { font-size: 1.2em; opacity: 0.9; }
+        .score-circle .label { font-size: 0.9em; opacity: 0.8; margin-top: 5px; }
+        .result-message { font-size: 1.3em; color: #333; margin-bottom: 30px; }
+        .result-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; text-align: left; }
+        .stat-item { background: #f8f9ff; padding: 15px; border-radius: 10px; }
+        .stat-item .label { color: #666; font-size: 0.9em; }
+        .stat-item .value { font-size: 1.4em; font-weight: bold; color: #333; }
+        .stat-item .value.correct { color: #52c41a; }
+        .stat-item .value.wrong { color: #ff6b6b; }
+        
+        .answer-review { margin-top: 30px; text-align: left; }
+        .answer-review h3 { font-size: 1.1em; color: #333; margin-bottom: 15px; padding-left: 15px; }
+        .review-item { display: flex; align-items: flex-start; gap: 10px; padding: 12px 15px; background: #f8f9ff; border-radius: 8px; margin-bottom: 8px; }
+        .review-item img { width: 60px; height: 60px; object-fit: cover; border-radius: 6px; flex-shrink: 0; }
+        .review-item .result { font-size: 0.85em; padding: 3px 10px; border-radius: 4px; margin-left: auto; flex-shrink: 0; }
+        .review-item .result.right { background: #d4edda; color: #155724; }
+        .review-item .result.wrong { background: #f8d7da; color: #721c24; }
+        
+        .category-tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .category-tab { padding: 8px 20px; border: none; border-radius: 20px; cursor: pointer; font-size: 0.95em; background: #e4e6eb; color: #333; transition: all 0.2s; }
+        .category-tab.active { background: #667eea; color: #fff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 开始页面 -->
+        <div class="start-screen" id="startScreen">
+            <h1>📚 信息学业水平测试</h1>
+            <p class="subtitle">2026 练习版题库</p>
+            <div class="info">
+                <p>📂 题库包含：</p>
+                <p>• <strong>单选题</strong> - 23页 × 20题</p>
+                <p>• <strong>情境综合</strong> - 106道综合题</p>
+                <p>• <strong>模块综合</strong> - 106道模块题</p>
+                <p style="margin-top: 20px; color: #666;">每次随机抽取 <strong>20</strong> 道题练习</p>
+            </div>
+            <button class="btn" onclick="startQuiz()">开始练习</button>
+        </div>
+        
+        <!-- 答题页面 -->
+        <div class="quiz-screen" id="quizScreen">
+            <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+            <p class="question-counter" id="questionCounter">第 1/20 题</p>
+            
+            <img class="question-image" id="questionImage" src="" alt="题目">
+            
+            <div class="options" id="optionsContainer">
+                <button class="option-btn" onclick="selectOption('A')"><span class="letter">A</span><span id="optA"></span></button>
+                <button class="option-btn" onclick="selectOption('B')"><span class="letter">B</span><span id="optB"></span></button>
+                <button class="option-btn" onclick="selectOption('C')"><span class="letter">C</span><span id="optC"></span></button>
+                <button class="option-btn" onclick="selectOption('D')"><span class="letter">D</span><span id="optD"></span></button>
+            </div>
+            
+            <div class="nav-buttons">
+                <button class="nav-btn prev" id="prevBtn" onclick="prevQuestion()" disabled>上一题</button>
+                <button class="nav-btn next" id="nextBtn" onclick="nextQuestion()">下一题</button>
+                <button class="nav-btn submit" id="submitBtn" onclick="submitQuiz()" style="display:none;">提交答案</button>
+            </div>
+        </div>
+        
+        <!-- 结果页面 -->
+        <div class="result-screen" id="resultScreen">
+            <div class="result-card">
+                <div class="score-circle">
+                    <span class="score" id="finalScore">0</span>
+                    <span class="total">/<span id="totalQuestions">20</span></span>
+                    <span class="label">得分</span>
+                </div>
+                <p class="result-message" id="resultMessage"></p>
+                
+                <div class="result-stats">
+                    <div class="stat-item">
+                        <div class="label">正确</div>
+                        <div class="value correct" id="correctCount">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="label">错误</div>
+                        <div class="value wrong" id="wrongCount">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="label">正确率</div>
+                        <div class="value" id="accuracy">0%</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="label">用时</div>
+                        <div class="value" id="timeUsed">0分0秒</div>
+                    </div>
+                </div>
+                
+                <button class="btn" onclick="restartQuiz()">再做一次</button>
+            </div>
+            
+            <div class="answer-review" id="answerReview" style="display:none;">
+                <h3>📝 答案回顾</h3>
+                <div class="category-tabs" id="categoryTabs"></div>
+                <div id="reviewList"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 题库数据 - 图片路径和答案
+        const questionBank = [
+            // 单选题 - 页面1 (1单选.png)
+            { id: 1, image: '单选/1单选.png', category: '单选', answer: 'A', question: '网络平台定制商品属于"物联网+"', options: { A: '商业', B: '物流', C: '交通', D: '旅游' } },
+            { id: 2, image: '单选/1单选.png', category: '单选', answer: 'D', question: '不属于常见网络分层结构', options: { A: '传输层', B: '应用层', C: '网络层', D: '文件层' } },
+            { id: 3, image: '单选/1单选.png', category: '单选', answer: 'A', question: '光电信号相互转换的网络设备', options: { A: '光调制解调器', B: '中继器', C: '交换机', D: '桥' } },
+            { id: 4, image: '单选/1单选.png', category: '单选', answer: 'C', question: 'HTML代码正确写法', options: { A: '标题在前', B: '图片在h1前', C: 'h1在前', D: '标题标签错误' } },
+            { id: 5, image: '单选/1单选.png', category: '单选', answer: 'A', question: '发送电子邮件的协议', options: { A: 'SMTP', B: 'POP3', C: 'DNS', D: 'FTP' } },
+            { id: 6, image: '单选/1单选.png', category: '单选', answer: 'D', question: '关于域名的表述正确的是', options: { A: '一域名对多IP', B: '域名就是网址', C: '必须以.cn结尾', D: '域名与IP相互对应' } },
+            { id: 7, image: '单选/1单选.png', category: '单选', answer: 'A', question: '规定关键作用的协议', options: { A: 'TCP/IP', B: 'HTTP', C: 'HTTPS', D: 'FTP' } },
+            { id: 8, image: '单选/1单选.png', category: '单选', answer: 'B', question: '在线文档编辑软件应用的技术', options: { A: '物联网', B: '云计算', C: '语音识别', D: '人工智能' } },
+            { id: 9, image: '单选/1单选.png', category: '单选', answer: 'C', question: '预防DNS欺骗的方法', options: { A: '定期提取MAC地址', B: '人工与IP对应', C: '手动设置可靠DNS', D: '使用有线网络' } },
+            { id: 10, image: '单选/1单选.png', category: '单选', answer: 'B', question: '关于物联网认识错误的是', options: { A: '互联网是核心', B: '构建人类与自然交互', C: '通过传感器感知', D: '通过云平台处理数据' } },
+            { id: 11, image: '单选/1单选.png', category: '单选', answer: 'A', question: '感知外界信息的关键组件', options: { A: '各类传感器', B: '智能终端设备', C: '通信传输网络', D: '数据处理中心' } },
+            { id: 12, image: '单选/1单选.png', category: '单选', answer: 'C', question: '高铁刷身份证进站使用的技术', options: { A: 'NFC', B: '蓝牙', C: 'RFID', D: 'ETC' } },
+            { id: 13, image: '单选/1单选.png', category: '单选', answer: 'A', question: '停车场地磁传感器远距离传输技术', options: { A: 'NB-IoT', B: '卫星导航', C: '蓝牙', D: 'NFC' } },
+            { id: 14, image: '单选/1单选.png', category: '单选', answer: 'C', question: '公交站系统中工作在各层的是', options: { A: '北斗车载终端', B: '各类传感器', C: '服务器平台', D: '通信设备' } },
+            { id: 15, image: '单选/1单选.png', category: '单选', answer: 'C', question: '不属于物联网数据来源的是', options: { A: '传感器采集', B: '互联网数据', C: '未联网物品数据', D: '人工输入数据' } },
+            { id: 16, image: '单选/1单选.png', category: '单选', answer: 'B', question: '智能门锁安全问题最可能在', options: { A: '访问控制', B: '通信安全', C: '数据存储与安全', D: '物理设备安全' } },
+            { id: 17, image: '单选/1单选.png', category: '单选', answer: 'C', question: '铁路自助进站比对旅客人脸和证件照片采用', options: { A: '指纹识别', B: '图像复原', C: '人脸识别', D: '软硬控制技术' } },
+            { id: 18, image: '单选/1单选.png', category: '单选', answer: 'A', question: '拍照识别植物小程序使用的技术', options: { A: '图像识别技术', B: '语音识别技术', C: '自然语言理解', D: '机器人技术' } },
+            { id: 19, image: '单选/1单选.png', category: '单选', answer: 'B', question: '智能推荐的"原材料"是', options: { A: '算法', B: '数据', C: '算力', D: '软件系统' } },
+            { id: 20, image: '单选/1单选.png', category: '单选', answer: 'B', question: '智能物价预测系统采用的人工智能方法是', options: { A: '经验判断', B: '机器学习', C: '随机预测', D: '专家系统' } },
+        ];
+        
+        let currentQuestions = [];
+        let currentIndex = 0;
+        let userAnswers = {};
+        let startTime = null;
+        const basePath = 'images/';
+        
+        function shuffleArray(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+        
+        function startQuiz() {
+            currentQuestions = shuffleArray(questionBank).slice(0, 20);
+            currentIndex = 0;
+            userAnswers = {};
+            startTime = Date.now();
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('quizScreen').style.display = 'block';
+            showQuestion();
+        }
+        
+        function showQuestion() {
+            const q = currentQuestions[currentIndex];
+            document.getElementById('questionImage').src = basePath + q.image;
+            document.getElementById('questionCounter').textContent = `第 ${currentIndex + 1}/20 题`;
+            document.getElementById('progressFill').style.width = `${((currentIndex + 1) / 20) * 100}%`;
+            
+            // 显示选项
+            document.getElementById('optA').textContent = q.options.A;
+            document.getElementById('optB').textContent = q.options.B;
+            document.getElementById('optC').textContent = q.options.C;
+            document.getElementById('optD').textContent = q.options.D;
+            
+            // 重置选项样式
+            document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
+            
+            // 恢复已选答案
+            if (userAnswers[currentIndex]) {
+                const letter = userAnswers[currentIndex];
+                document.querySelector(`.option-btn[onclick="selectOption('${letter}')"]`).classList.add('selected');
+            }
+            
+            // 更新导航按钮
+            document.getElementById('prevBtn').disabled = currentIndex === 0;
+            const isLast = currentIndex === 19;
+            document.getElementById('nextBtn').style.display = isLast ? 'none' : 'inline-block';
+            document.getElementById('submitBtn').style.display = isLast ? 'inline-block' : 'none';
+        }
+        
+        function selectOption(letter) {
+            userAnswers[currentIndex] = letter;
+            document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
+            document.querySelector(`.option-btn[onclick="selectOption('${letter}')"]`).classList.add('selected');
+        }
+        
+        function prevQuestion() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                showQuestion();
+            }
+        }
+        
+        function nextQuestion() {
+            if (currentIndex < 19) {
+                currentIndex++;
+                showQuestion();
+            }
+        }
+        
+        function submitQuiz() {
+            // 计算得分
+            let correct = 0;
+            currentQuestions.forEach((q, i) => {
+                if (userAnswers[i] === q.answer) correct++;
+            });
+            
+            const total = 20;
+            const accuracy = Math.round((correct / total) * 100);
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            
+            // 显示结果
+            document.getElementById('quizScreen').style.display = 'none';
+            document.getElementById('resultScreen').style.display = 'block';
+            document.getElementById('finalScore').textContent = correct;
+            document.getElementById('totalQuestions').textContent = total;
+            document.getElementById('correctCount').textContent = correct;
+            document.getElementById('wrongCount').textContent = total - correct;
+            document.getElementById('accuracy').textContent = accuracy + '%';
+            document.getElementById('timeUsed').textContent = `${minutes}分${seconds}秒`;
+            
+            let message = '';
+            if (accuracy >= 90) message = '🌟 太棒了！满分选手！';
+            else if (accuracy >= 70) message = '👍 很不错！继续加油！';
+            else if (accuracy >= 50) message = '💪 还需努力，多练练！';
+            else message = '📚 加油！多看看错题！';
+            document.getElementById('resultMessage').textContent = message;
+            
+            // 显示答案回顾
+            showAnswerReview();
+        }
+        
+        function showAnswerReview() {
+            const reviewList = document.getElementById('reviewList');
+            reviewList.innerHTML = '';
+            
+            // 按类别显示
+            const categories = [...new Set(currentQuestions.map(q => q.category))];
+            let html = '';
+            currentQuestions.forEach((q, i) => {
+                const isCorrect = userAnswers[i] === q.answer;
+                html += `
+                    <div class="review-item">
+                        <img src="${basePath}${q.image}" alt="题目${i+1}">
+                        <div>
+                            <div style="font-weight:bold;margin-bottom:4px;">第${i+1}题</div>
+                            <div style="font-size:0.9em;color:#666;">${q.question}</div>
+                            <div style="font-size:0.85em;margin-top:4px;">你的答案: ${userAnswers[i] || '未答'} | 正确答案: ${q.answer}</div>
+                        </div>
+                        <span class="result ${isCorrect ? 'right' : 'wrong'}">${isCorrect ? '✓' : '✗'}</span>
+                    </div>
+                `;
+            });
+            reviewList.innerHTML = html;
+            document.getElementById('answerReview').style.display = 'block';
+        }
+        
+        function restartQuiz() {
+            document.getElementById('resultScreen').style.display = 'none';
+            document.getElementById('startScreen').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
