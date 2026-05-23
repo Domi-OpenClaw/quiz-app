@@ -285,15 +285,21 @@
             currentQuestions.forEach((q, i) => {
                 const isCorrect = userAnswers[i] === q.answer;
                 const userAns = userAnswers[i] || '未答';
+                const userOptText = q.options[userAns] || '-';
+                const correctOptText = q.options[q.answer] || '-';
                 const item = document.createElement('div');
                 item.className = 'review-item';
                 item.innerHTML = `
                     <div class="num">${i+1}</div>
                     <div style="flex:1;">
-                        <div style="font-size:0.95em;color:#333;margin-bottom:4px;">${q.question}</div>
+                        <div style="font-size:0.95em;color:#333;margin-bottom:6px;">${q.question}</div>
                         <div class="user-answer ${isCorrect ? 'right' : 'wrong'}">
-                            你的答案: <span>${userAns}</span> | 正确答案: <span>${q.answer}</span>
+                            你的答案: <span>${userAns}. ${userOptText}</span>
                         </div>
+                        ${!isCorrect ? `
+                        <div class="user-answer right">
+                            正确答案: <span>${q.answer}. ${correctOptText}</span>
+                        </div>` : ''}
                     </div>
                     <span class="result ${isCorrect ? 'right' : 'wrong'}">${isCorrect ? '✓' : '✗'}</span>
                 `;
